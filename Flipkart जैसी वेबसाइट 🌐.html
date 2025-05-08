@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>फ्लिपकार्ट क्लोन - उन्नत संस्करण V3 (सिंगल फ़ाइल)</title>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+        /* --- Global Styles --- */
+        :root {
+            --flipkart-blue: #2874f0;
+            --flipkart-yellow: #ffe500;
+            --flipkart-orange: #fb641b;
+            --text-dark: #212121;
+            --text-light: #878787;
+            --background-grey: #f1f3f6;
+            --white: #fff;
+            --border-color: #e0e0e0;
+            --green: #388e3c;
+            --red: #ff6161;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+             scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background-color: var(--background-grey);
+            color: var(--text-dark);
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: color 0.2s ease;
+        }
+        a:hover {
+            color: var(--flipkart-blue);
+        }
+
+        ul { list-style: none; }
+
+        button {
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+            background: none;
+            transition: background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+        }
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        img {
+            max-width: 100%;
+            display: block;
+            height: auto;
+        }
+
+        /* --- Header Styles --- */
+        .main-header {
+            background-color: var(--flipkart-blue);
+            color: var(--white);
+            padding: 10px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .logo a {
+            font-size: 1.5em;
+            font-weight: bold;
+            font-style: italic;
+            color: var(--flipkart-yellow);
+        }
+        .logo span {
+            font-size: 0.7em;
+            color: var(--white);
+            font-style: normal;
+            margin-left: 5px;
+         }
+
+
+        .search-bar {
+            flex-grow: 1;
+            display: flex;
+            position: relative; /* For clear button */
+            background-color: var(--white);
+            border-radius: 2px;
+            overflow: hidden;
+            max-width: 500px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .search-bar input[type="text"] {
+            flex-grow: 1;
+            padding: 10px 40px 10px 15px; /* Space for clear button */
+            border: none;
+            outline: none;
+            font-size: 1em;
+            color: var(--text-dark);
+        }
+        .search-bar input[type="text"]::placeholder { color: #aaa; }
+
+        .search-clear-btn {
+            position: absolute;
+            right: 50px; /* Position before search icon */
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.2em;
+            cursor: pointer;
+            padding: 0 5px;
+            display: none; /* Hidden by default */
+        }
+        .search-clear-btn:hover { color: var(--text-dark); }
+
+        .search-bar button { /* Search icon button */
+            padding: 10px 15px;
+            background-color: var(--white);
+            color: var(--flipkart-blue);
+            border: none;
+        }
+         .search-bar button i { font-size: 1.1em; }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-actions a, .user-actions .dropdown-toggle, .user-actions .cart-link {
+            color: var(--white);
+            font-weight: 500;
+            padding: 8px 10px;
+            border-radius: 2px;
+            transition: background-color 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+            position: relative; /* For cart badge positioning */
+        }
+         /* Specific style for cart link to ensure badge aligns */
+        .cart-link {
+            padding-right: 15px; /* Space for badge */
+        }
+
+
+        .user-actions a:hover, .user-actions .dropdown-toggle:hover, .user-actions .cart-link:hover {
+             background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .login-btn, .profile-link {
+            background-color: var(--white);
+            color: var(--flipkart-blue);
+            padding: 5px 25px;
+            font-weight: bold;
+            border-radius: 2px; /* Added radius */
+        }
+        .login-btn:hover, .profile-link:hover {
+             background-color: #f0f0f0;
+             color: var(--flipkart-blue);
+        }
+        .profile-link i {
+             margin-right: 5px;
+        }
+
+        .cart-badge {
+            background-color: var(--red);
+            color: white;
+            border-radius: 50%;
+            padding: 1px 6px;
+            font-size: 0.75em;
+            font-weight: bold;
+            position: absolute; /* Position relative to parent */
+            top: 0px;
+            right: 0px;
+            min-width: 18px;
+            height: 18px;
+            line-height: 16px; /* Adjust for vertical centering */
+            text-align: center;
+            display: none; /* Hidden by default, shown by JS */
+            transition: transform 0.2s ease;
+            border: 1px solid var(--white); /* Optional border */
+        }
+
+
+        /* Dropdown */
+        .dropdown { position: relative; }
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: var(--white);
+            color: var(--text-dark);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            min-width: 190px; /* Slightly wider */
+            z-index: 1001;
+            border-radius: 2px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        .dropdown-menu a, .dropdown-menu button { /* Style logout button like links */
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            color: var(--text-dark);
+            width: 100%;
+            text-align: left;
+            font-size: inherit;
+        }
+        .dropdown-menu a i, .dropdown-menu button i {
+            width: 16px;
+            text-align: center;
+            color: #555;
+        }
+        .dropdown-menu a:hover, .dropdown-menu button:hover { background-color: var(--background-grey); }
+        .dropdown:hover .dropdown-menu { display: block; opacity: 1; transform: translateY(0); }
+        .dropdown-menu .logout-btn { color: var(--red); font-weight: 500; } /* Logout button style */
+        .logout-btn { display: none; } /* Hide logout initially */
+        body.logged-in .logout-btn { display: flex; } /* Show when logged in */
+
+
+        /* --- Category Navigation --- */
+        .category-nav {
+            background-color: var(--white);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .category-nav ul {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        .category-nav li { text-align: center; padding: 5px; }
+        .category-nav li.category-loading { width: 100%; text-align: center; color: var(--text-light); padding: 20px; }
+        .category-nav a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 5px 10px;
+            font-size: 0.9em;
+            font-weight: 500;
+            color: #333;
+            min-width: 80px;
+        }
+        .category-image-wrapper {
+            width: 64px; height: 64px; margin-bottom: 5px;
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+        }
+        .category-image-wrapper img { max-height: 100%; max-width: 100%; object-fit: contain; }
+        .category-nav a:hover { color: var(--flipkart-blue); }
+
+
+        /* --- Hero Section / Banner --- */
+        .hero-section { padding: 15px 0; }
+        .banner-slider {
+            position: relative; overflow: hidden; height: 280px;
+            border-radius: 4px; display: flex; background-color: #eee;
+        }
+        .slide {
+            display: none; width: 100%; height: 100%; flex-shrink: 0;
+            align-items: center; justify-content: center; color: var(--white);
+            font-size: 2em; font-weight: bold; text-align: center; padding: 20px;
+            opacity: 0; transition: opacity 0.6s ease-in-out;
+        }
+        .slide.active { display: flex; opacity: 1; }
+        .slider-controls {
+            position: absolute; top: 50%; width: 100%; display: flex;
+            justify-content: space-between; transform: translateY(-50%); padding: 0 10px; z-index: 10;
+        }
+        .slider-btn {
+            background-color: rgba(255, 255, 255, 0.7); border: none; border-radius: 50%;
+            width: 40px; height: 40px; font-size: 1.5em; color: #333; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2); transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+        .slider-btn:hover { background-color: rgba(255, 255, 255, 0.9); }
+        .slider-btn:active { transform: scale(0.95); }
+        .slider-dots {
+            position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 8px; z-index: 10;
+        }
+        .slider-dot {
+            width: 10px; height: 10px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.5);
+            cursor: pointer; transition: background-color 0.3s ease; border: 1px solid rgba(0, 0, 0, 0.2);
+        }
+        .slider-dot.active { background-color: var(--white); }
+
+
+        /* --- Product Section --- */
+        .product-section {
+            background-color: var(--white); margin: 15px 0; padding: 20px 15px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); border-radius: 4px;
+        }
+        .section-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0;
+            flex-wrap: wrap; gap: 10px; /* Allow wrapping for sort buttons */
+        }
+        .section-header h2 { font-size: 1.4em; font-weight: 500; margin-right: auto; /* Push sort buttons right */ }
+        .loading-indicator { font-size: 0.8em; color: var(--text-light); font-weight: normal; margin-left: 8px; }
+        .view-all-btn {
+            background-color: var(--flipkart-blue); color: var(--white); padding: 8px 20px;
+            font-size: 0.9em; font-weight: 500; border-radius: 2px;
+        }
+        .view-all-btn:hover { background-color: #1c63d0; }
+
+         /* Sorting Controls */
+        .sort-controls {
+            display: flex;
+            gap: 10px;
+            margin-left: auto; /* Push to the right */
+        }
+        .sort-btn {
+            padding: 5px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 2px;
+            font-size: 0.8em;
+            color: var(--text-light);
+            background-color: var(--white);
+        }
+        .sort-btn.active {
+            background-color: var(--flipkart-blue);
+            color: var(--white);
+            border-color: var(--flipkart-blue);
+            font-weight: 500;
+        }
+         .sort-btn:hover:not(.active) {
+             border-color: var(--flipkart-blue);
+             color: var(--flipkart-blue);
+         }
+
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; }
+        .no-results-message { padding: 30px; text-align: center; color: var(--text-light); font-size: 1.1em; }
+
+        .product-card {
+            border: 1px solid var(--border-color); border-radius: 4px; padding: 15px; text-align: left;
+            transition: box-shadow 0.3s ease, transform 0.3s ease; background-color: var(--white);
+            display: flex; flex-direction: column; position: relative; overflow: hidden;
+        }
+        .product-card:hover { box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); transform: translateY(-4px); }
+
+        .product-image {
+            height: 160px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center;
+            background-color: #f8f8f8; border-radius: 3px; position: relative; overflow: hidden;
+        }
+        .product-emoji {
+            font-size: 4.5em; line-height: 1; display: block; position: relative; z-index: 2;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .product-details { flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .product-title {
+            font-size: 0.9em; font-weight: 500; margin-bottom: 5px; display: -webkit-box;
+            -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+            text-overflow: ellipsis; height: 2.8em; line-height: 1.4em; color: var(--text-dark);
+        }
+        /* Highlight for search term */
+        .highlight {
+            background-color: var(--flipkart-yellow);
+            font-weight: bold;
+            padding: 0 1px;
+            border-radius: 1px;
+        }
+
+        .product-price { margin-bottom: 8px; font-size: 1em; font-weight: bold; color: var(--text-dark); }
+        .product-price .original-price { text-decoration: line-through; color: var(--text-light); font-size: 0.85em; margin-left: 5px; }
+        .product-price .discount { color: var(--green); font-size: 0.85em; margin-left: 5px; font-weight: 500; }
+        .product-brand, .product-offer { font-size: 0.8em; color: var(--text-light); margin-bottom: 5px; line-height: 1.3; }
+        .product-offer { color: var(--green); font-weight: 500; }
+
+        .add-to-cart-btn {
+            background-color: var(--flipkart-orange); /* Use orange */
+            color: var(--white); padding: 8px 15px; border-radius: 2px; font-weight: 500;
+            font-size: 0.9em; margin-top: 10px; display: block; width: 100%; text-align: center; border: none;
+        }
+        .add-to-cart-btn:hover { background-color: #e68a00; } /* Darker orange */
+        .add-to-cart-btn:disabled { background-color: #cccccc; opacity: 0.7; }
+        .add-to-cart-btn.added { background-color: var(--green); } /* Green when added */
+
+
+        /* --- Footer --- */
+        .main-footer { background-color: #172337; color: var(--white); padding: 40px 0 20px; margin-top: 30px; font-size: 0.85em; line-height: 1.6; }
+        .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 30px; margin-bottom: 30px; padding-bottom: 30px; }
+        .footer-divider { border: none; height: 1px; background-color: #454d5e; margin-bottom: 20px; }
+        .footer-col h4 { color: var(--text-light); font-size: 0.9em; margin-bottom: 15px; text-transform: uppercase; font-weight: 500; }
+        .footer-col ul li { margin-bottom: 8px; }
+        .footer-col ul li a { color: #dddddd; }
+        .footer-col ul li a:hover { color: var(--white); text-decoration: underline; }
+        .footer-col address { font-style: normal; color: #dddddd; }
+        .footer-col p { margin-bottom: 5px; }
+        .footer-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; flex-wrap: wrap; gap: 15px 25px; color: #ccc; font-size: 0.9em; }
+        .footer-bottom div { display: flex; align-items: center; gap: 8px; }
+        .footer-bottom div i { color: var(--flipkart-yellow); }
+        .payment-methods img { height: 24px; filter: brightness(1.5); }
+
+        /* --- Cart Modal Styles --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.3s ease;
+        }
+        .modal-content {
+            background-color: var(--white);
+            padding: 25px;
+            border-radius: 5px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .modal-header h2 { font-size: 1.3em; font-weight: 500; }
+        .modal-close-btn {
+            background: none; border: none; font-size: 1.8em;
+            color: var(--text-light); cursor: pointer; line-height: 1;
+        }
+        .modal-close-btn:hover { color: var(--text-dark); }
+        .modal-body { min-height: 100px; /* Ensure some height even when empty */ }
+        .cart-items-list { list-style: none; padding: 0; }
+        .cart-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px 0;
+            border-bottom: 1px dashed var(--border-color);
+        }
+        .cart-item:last-child { border-bottom: none; }
+        .cart-item-emoji { font-size: 2em; }
+        .cart-item-title { flex-grow: 1; font-size: 0.95em; }
+        .cart-empty-message { text-align: center; color: var(--text-light); padding: 20px 0; }
+
+        /* --- Responsive Design Adjustments --- */
+        @media (max-width: 992px) {
+            .search-bar { max-width: 300px; }
+            .user-actions { gap: 15px; }
+            .category-nav ul { justify-content: flex-start; overflow-x: auto; padding-bottom: 10px; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+            .category-nav li { flex-shrink: 0; }
+            .product-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+            .product-image { height: 140px; }
+            .product-emoji { font-size: 4em; }
+            .section-header h2 { font-size: 1.3em; margin-right: 15px;} /* Adjust margin */
+            .sort-controls { margin-left: 0; /* Allow wrapping */ }
+        }
+        @media (max-width: 768px) {
+            .header-content { flex-wrap: wrap; justify-content: center; gap: 10px; }
+            .logo { order: 1; width: 100%; text-align: center; margin-bottom: 10px; }
+            .search-bar { order: 3; width: 100%; max-width: none; }
+            .user-actions { order: 2; width: 100%; justify-content: center; margin-bottom: 10px; }
+            .main-header { position: static; }
+            .hero-section .banner-slider { height: 220px; font-size: 1.5em; }
+            .slider-btn { width: 35px; height: 35px; font-size: 1.3em; }
+            .product-grid { grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 15px; }
+            .product-card { padding: 12px; }
+            .product-image { height: 130px; }
+            .product-emoji { font-size: 3.5em; }
+            .section-header h2 { font-size: 1.2em; }
+            .view-all-btn { padding: 7px 16px; font-size: 0.85em; }
+            .footer-content { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+            .footer-bottom { flex-direction: column; align-items: center; text-align: center; gap: 10px; }
+            .payment-methods { margin-top: 10px; }
+            .sort-controls { width: 100%; justify-content: center; margin-top: 10px; } /* Center sort buttons */
+            .section-header h2 { width: 100%; text-align: center; margin-bottom: 5px; margin-right: 0;} /* Center title */
+        }
+        @media (max-width: 480px) {
+             .container { padding: 0 10px; }
+             .user-actions a, .user-actions .dropdown-toggle, .user-actions .cart-link { padding: 6px 8px; font-size: 0.85em; }
+             .login-btn, .profile-link { padding: 5px 15px; }
+             .category-nav a { font-size: 0.8em; min-width: 70px; }
+             .category-image-wrapper { width: 50px; height: 50px; }
+             .product-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+             .product-image { height: 110px; }
+             .product-emoji { font-size: 3em; }
+             .product-title { font-size: 0.85em; height: 2.6em; line-height: 1.3em; }
+             .product-price { font-size: 0.95em; }
+             .add-to-cart-btn { font-size: 0.85em; padding: 7px 10px; }
+             .view-all-btn { padding: 6px 12px; font-size: 0.8em; }
+             .sort-btn { padding: 4px 8px; font-size: 0.75em;}
+             .modal-content { width: 95%; padding: 20px; }
+             .modal-header h2 { font-size: 1.2em;}
+             .search-clear-btn { right: 45px; font-size: 1.1em;} /* Adjust clear button */
+             .search-bar input[type="text"] { padding-right: 35px;}
+        }
+
+        /* Toast Notification Styles */
+        .toast-notification {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px);
+            background-color: rgba(40, 116, 240, 0.9); color: white; padding: 10px 20px;
+            border-radius: 6px; font-size: 0.9em; box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 9999; opacity: 0; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease-out;
+            white-space: nowrap; max-width: 90%;
+        }
+        .toast-notification.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+        /* Cart update animation */
+        .cart-badge.updated { animation: pop 0.3s ease-out; }
+        @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.4); } 100% { transform: scale(1); } }
+
+    </style>
+</head>
+<body class=""> <!-- Add/remove 'logged-in' class here via JS -->
+
+    <!-- ====================== Header ====================== -->
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <a href="#">
+                        Flipkart
+                        <span>Explore <span>Plus</span> <i class="fas fa-plus" style="color:var(--flipkart-yellow); font-size: 0.8em;"></i></span>
+                    </a>
+                </div>
+
+                <div class="search-bar">
+                    <input type="text" placeholder="उत्पाद, ब्रांड और बहुत कुछ खोजें" id="searchInput" aria-label="Search">
+                    <button class="search-clear-btn" id="searchClearBtn" aria-label="Clear search">&times;</button>
+                    <button type="button" id="searchButton" aria-label="Search Button"><i class="fas fa-search"></i></button>
+                </div>
+
+                <div class="user-actions">
+                    <div id="user-auth-section">
+                         <!-- JS will insert either Login button or Profile link here -->
+                    </div>
+                    <a href="#" class="cart-link" id="cartLink" title="कार्ट देखें"><i class="fas fa-shopping-cart"></i> कार्ट <span id="cart-count" class="cart-badge">0</span></a>
+                    <div class="dropdown">
+                        <a href="#" class="dropdown-toggle" aria-haspopup="true" aria-expanded="false">More <i class="fas fa-chevron-down" style="font-size: 0.7em; margin-left: 3px;"></i></a>
+                        <div class="dropdown-menu" id="moreDropdownMenu">
+                             <a href="#" id="profileDropdownLink" style="display: none;"><i class="fas fa-user"></i> मेरा प्रोफाइल</a>
+                            <a href="#"><i class="fas fa-bell"></i> सूचनाएं</a>
+                            <a href="#"><i class="fas fa-question-circle"></i> 24x7 ग्राहक सेवा</a>
+                            <a href="#"><i class="fas fa-download"></i> ऐप डाउनलोड करें</a>
+                            <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> लॉगआउट</button>
+                        </div>
+                    </div>
+                     <a href="#">विक्रेता बनें</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ====================== Category Navigation ====================== -->
+    <nav class="category-nav">
+        <div class="container">
+            <ul id="categoryList">
+                <li class="category-loading">श्रेणियां लोड हो रही हैं...</li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- ====================== Main Content Area ====================== -->
+    <main class="container">
+
+        <!-- --- Hero Section / Banner Slider --- -->
+        <section class="hero-section" aria-label="Promotional Banners">
+            <div class="banner-slider">
+                <div class="slide active" style="background: linear-gradient(45deg, #2874f0, #1c63d0);">Big Saving Days! 💰</div>
+                <div class="slide" style="background: linear-gradient(45deg, #ff9f00, #e68a00);">Mega Electronics Sale! 💻</div>
+                <div class="slide" style="background: linear-gradient(45deg, #388e3c, #2e6b30);">Top Fashion Deals! 👕</div>
+
+                <div class="slider-controls">
+                     <button class="slider-btn prev-btn" aria-label="Previous Slide"><i class="fas fa-chevron-left"></i></button>
+                     <button class="slider-btn next-btn" aria-label="Next Slide"><i class="fas fa-chevron-right"></i></button>
+                </div>
+                 <div class="slider-dots">
+                     <!-- डॉट्स JS द्वारा बनेंगे -->
+                 </div>
+            </div>
+        </section>
+
+        <!-- --- Deals of the Day Section --- -->
+        <section class="product-section" id="deals-section">
+            <div class="section-header">
+                <h2>दिन की डील <span id="deals-loading" class="loading-indicator" style="display: none;">(लोड हो रहा है...)</span></h2>
+                 <div class="sort-controls" id="deals-sort-controls">
+                    <button class="sort-btn" data-sort="price-asc">मूल्य: कम से ज़्यादा</button>
+                    <button class="sort-btn" data-sort="price-desc">मूल्य: ज़्यादा से कम</button>
+                 </div>
+                <a href="#" class="view-all-btn">सभी देखें</a>
+            </div>
+            <div class="product-grid" id="deals-product-grid">
+                <!-- उत्पाद JS द्वारा बनेंगे -->
+            </div>
+            <div id="deals-no-results" class="no-results-message" style="display: none;">इस खोज/सॉर्ट के लिए कोई उत्पाद नहीं मिला।</div>
+        </section>
+
+        <!-- --- Electronics Section --- -->
+        <section class="product-section" id="electronics-section">
+            <div class="section-header">
+                 <h2>इलेक्ट्रॉनिक्स में सर्वश्रेष्ठ <span id="electronics-loading" class="loading-indicator" style="display: none;">(लोड हो रहा है...)</span></h2>
+                 <a href="#" class="view-all-btn">सभी देखें</a>
+            </div>
+            <div class="product-grid" id="electronics-product-grid">
+                 <!-- उत्पाद JS द्वारा बनेंगे -->
+            </div>
+             <div id="electronics-no-results" class="no-results-message" style="display: none;">इस अनुभाग में कोई उत्पाद नहीं मिला।</div>
+        </section>
+
+         <!-- --- Fashion Section --- -->
+        <section class="product-section" id="fashion-section">
+            <div class="section-header">
+                <h2>शीर्ष फैशन डील्स <span id="fashion-loading" class="loading-indicator" style="display: none;">(लोड हो रहा है...)</span></h2>
+                 <a href="#" class="view-all-btn">सभी देखें</a>
+            </div>
+            <div class="product-grid" id="fashion-product-grid">
+                <!-- उत्पाद JS द्वारा बनेंगे -->
+            </div>
+             <div id="fashion-no-results" class="no-results-message" style="display: none;">इस अनुभाग में कोई उत्पाद नहीं मिला।</div>
+        </section>
+
+    </main>
+
+    <!-- ====================== Footer ====================== -->
+     <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                 <div class="footer-col"><h4>हमारे बारे में</h4><ul><li><a href="#">संपर्क करें</a></li><li><a href="#">हमारे बारे में</a></li><li><a href="#">करियर</a></li><li><a href="#">फ्लिपकार्ट स्टोरीज़</a></li><li><a href="#">प्रेस</a></li><li><a href="#">फ्लिपकार्ट होलसेल</a></li><li><a href="#">कॉर्पोरेट जानकारी</a></li></ul></div>
+                 <div class="footer-col"><h4>सहायता</h4><ul><li><a href="#">भुगतान</a></li><li><a href="#">शिपिंग</a></li><li><a href="#">रद्दीकरण और वापसी</a></li><li><a href="#">FAQ</a></li><li><a href="#">उल्लंघन की रिपोर्ट करें</a></li></ul></div>
+                 <div class="footer-col"><h4>नीति</h4><ul><li><a href="#">रिटर्न पॉलिसी</a></li><li><a href="#">उपयोग की शर्तें</a></li><li><a href="#">सुरक्षा</a></li><li><a href="#">गोपनीयता</a></li><li><a href="#">साइटमैप</a></li><li><a href="#">EPR अनुपालन</a></li></ul></div>
+                 <div class="footer-col"><h4>सामाजिक</h4><ul><li><a href="#">फेसबुक</a></li><li><a href="#">ट्विटर</a></li><li><a href="#">यूट्यूब</a></li></ul></div>
+                 <div class="footer-col"><h4>हमें मेल करें</h4><address>फ्लिपकार्ट इंटरनेट प्राइवेट लिमिटेड,<br>बिल्डिंग्स एलिसा, बेगोनिया और<br>क्लोव एम्बेसी टेक विलेज,<br>आउटर रिंग रोड, देवरबीसनहल्ली गांव,<br>बेंगलुरु, 560103,<br>कर्नाटक, भारत</address></div>
+                 <div class="footer-col"><h4>पंजीकृत कार्यालय का पता</h4><address>फ्लिपकार्ट इंटरनेट प्राइवेट लिमिटेड,<br>बिल्डिंग्स एलिसा, बेगोनिया और<br>क्लोव एम्बेसी टेक विलेज,<br>आउटर रिंग रोड, देवरबीसनहल्ली गांव,<br>बेंगलुरु, 560103,<br>कर्नाटक, भारत <br>CIN : U51109KA2012PTC066107 <br>टेलीफोन: <a href="tel:18002029898" style="color:var(--flipkart-blue);">1800 202 9898</a></address></div>
+            </div>
+            <hr class="footer-divider">
+            <div class="footer-bottom">
+                 <div><i class="fas fa-briefcase"></i> विक्रेता बनें</div>
+                 <div><i class="fas fa-star"></i> विज्ञापन दें</div>
+                 <div><i class="fas fa-gift"></i> गिफ्ट कार्ड</div>
+                 <div><i class="fas fa-question-circle"></i> सहायता केंद्र</div>
+                 <div>&copy; 2007-<span id="currentYear"></span> Flipkart.com</div>
+                 <div class="payment-methods"><img src="https://static-assets-web.flixcart.com/batman-returns/batman-returns/p/images/payment-method-c454fb.svg" alt="Payment Methods"></div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ====================== Cart Modal ====================== -->
+    <div class="modal-overlay" id="cartModalOverlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="cartModalTitle">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="cartModalTitle">आपका कार्ट</h2>
+                <button class="modal-close-btn" id="cartModalCloseBtn" aria-label="Close Cart Modal">&times;</button>
+            </div>
+            <div class="modal-body" id="cartModalBody">
+                <ul class="cart-items-list" id="cartItemsList">
+                    <!-- कार्ट आइटम्स JS द्वारा लोड होंगे -->
+                </ul>
+                <p class="cart-empty-message" id="cartEmptyMsg" style="display: none;">आपका कार्ट खाली है।</p>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ====================== JavaScript ====================== -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // --- Mock Data ---
+            const categories = [
+                { name: 'Mobiles', img: 'https://rukminim2.flixcart.com/flap/128/128/image/22fddf3c7da4c4f4.png?q=100', link: '#' },
+                { name: 'Fashion', img: 'https://rukminim2.flixcart.com/flap/128/128/image/82b3ca5fb2301045.png?q=100', link: '#' },
+                { name: 'Electronics', img: 'https://rukminim2.flixcart.com/flap/128/128/image/69c6589653afdb9a.png?q=100', link: '#' },
+                { name: 'Home', img: 'https://rukminim2.flixcart.com/flap/128/128/image/ab7e2b022a4587dd.jpg?q=100', link: '#' },
+                { name: 'Appliances', img: 'https://rukminim2.flixcart.com/flap/128/128/image/0ff199d1bd27eb98.png?q=100', link: '#' },
+                { name: 'Travel', img: 'https://rukminim2.flixcart.com/flap/128/128/image/71050627a56b4693.png?q=100', link: '#' },
+                { name: 'Grocery', img: 'https://rukminim2.flixcart.com/flap/128/128/image/dff3f7adcf3a90c6.png?q=100', link: '#' },
+                { name: 'Beauty, Toys & More', img: 'https://rukminim2.flixcart.com/flap/128/128/image/f15c02bfeb02d15d.png?q=100', link: '#' }
+            ];
+
+            let allProducts = [ // Use let to allow sorting modification
+                { id: 1, category: 'deals', title: 'स्मार्टवॉच प्रो - सीमित समय ऑफर', price: 999, originalPrice: 1999, discount: 50, offer: 'टॉप रेटेड गैजेट', emoji: '⌚', brand: 'गैजेटकिंग' },
+                { id: 2, category: 'deals', title: 'स्टाइलिश टी-शर्ट कॉम्बो पैक (3 का पैक)', price: 499, originalPrice: 999, discount: 50, offer: 'कॉटन फैब्रिक', emoji: '👕', brand: 'फैशनहब' },
+                { id: 3, category: 'deals', title: 'नॉइज़ कैंसलेशन वाले वायरलेस ब्लूटूथ ईयरबड्स', price: 1499, originalPrice: 2999, discount: 50, offer: 'बेस्ट सेलर', emoji: '🎧', brand: 'ऑडियोमैक्स' },
+                { id: 4, category: 'deals', title: 'होम डेकोर दीवार घड़ी (एनालॉग)', price: 349, originalPrice: 699, discount: 50, offer: 'एलिगेंट डिजाइन', emoji: '⏰', brand: 'डेकोरेटिव्स इंक.' },
+                { id: 5, category: 'deals', title: 'पुरुषों के लिए रनिंग शूज़', price: 1299, originalPrice: 2599, discount: 50, offer: 'नया लॉन्च', emoji: '👟', brand: 'स्पोर्ट्सगियर' },
+                { id: 6, category: 'deals', title: 'पोर्टेबल पावर बैंक 10000mAh', price: 799, originalPrice: 1599, discount: 50, offer: 'फास्ट चार्जिंग', emoji: '🔋', brand: 'इलेक्ट्रोवोल्ट' },
+                { id: 7, category: 'electronics', title: 'हाई परफॉर्मेंस लैपटॉप i5/8GB/512GB SSD', price: 59990, originalPrice: 75000, discount: 20, offer: 'नो कॉस्ट EMI', emoji: '💻', brand: 'टेकलैप्स' },
+                { id: 8, category: 'electronics', title: 'फिटनेस स्मार्टवॉच सीरीज 5', price: 3499, originalPrice: 4999, discount: 30, offer: 'हार्ट रेट मॉनिटर', emoji: '⌚', brand: 'वियरफिट' },
+                { id: 9, category: 'electronics', title: 'मिररलेस कैमरा EOS M50 किट', price: 45500, originalPrice: 52000, discount: 12, offer: 'फ्री कैमरा बैग', emoji: '📷', brand: 'कैनफिल्म्स' },
+                { id: 10, category: 'electronics', title: 'ओवर-ईयर वायरलेस हेडफ़ोन', price: 2199, originalPrice: 3499, discount: 37, offer: 'डीप बास', emoji: '🎧', brand: 'ऑडियोब्लास्ट' },
+                { id: 11, category: 'fashion', title: 'महिलाओं की प्रिंटेड कुर्ता (रेयॉन)', price: 699, originalPrice: 1499, discount: 53, offer: 'एथनिक वियर', emoji: '👗', brand: 'एथनिक वियर कंपनी' },
+                { id: 12, category: 'fashion', title: 'पुरुषों की स्लिम फिट जींस (ब्लू)', price: 999, originalPrice: 1999, discount: 50, offer: 'ट्रेंडी कलेक्शन', emoji: '👖', brand: 'डेनिमको' },
+                { id: 13, category: 'fashion', title: 'यूनिसेक्स कैज़ुअल स्नीकर्स (व्हाइट)', price: 1499, originalPrice: 2999, discount: 50, offer: 'आरामदायक फिट', emoji: '👟', brand: 'स्टेपअप शूज़' },
+                { id: 14, category: 'fashion', title: 'पुरुषों के लिए एनालॉग घड़ी (मेटल स्ट्रैप)', price: 849, originalPrice: 1499, discount: 43, offer: 'क्लासिक डिजाइन', emoji: '⌚', brand: 'टाइममास्टर्स' }
+            ];
+             // Keep a copy of the original product order for reset
+             const originalProducts = [...allProducts];
+
+            // --- State Variables ---
+            let cartItems = [];
+            let isLoggedIn = false;
+            let currentSort = null; // Track current sorting
+
+            // --- Element Selectors ---
+            const categoryListContainer = document.getElementById('categoryList');
+            const dealsGrid = document.getElementById('deals-product-grid');
+            const electronicsGrid = document.getElementById('electronics-product-grid');
+            const fashionGrid = document.getElementById('fashion-product-grid');
+            const searchInput = document.getElementById('searchInput');
+            const searchButton = document.getElementById('searchButton');
+            const searchClearBtn = document.getElementById('searchClearBtn');
+            const dealsLoading = document.getElementById('deals-loading');
+            const electronicsLoading = document.getElementById('electronics-loading');
+            const fashionLoading = document.getElementById('fashion-loading');
+            const dealsNoResults = document.getElementById('deals-no-results');
+            const electronicsNoResults = document.getElementById('electronics-no-results');
+            const fashionNoResults = document.getElementById('fashion-no-results');
+            const cartCountElement = document.getElementById('cart-count');
+            const userAuthSection = document.getElementById('user-auth-section');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const profileDropdownLink = document.getElementById('profileDropdownLink');
+            const cartLink = document.getElementById('cartLink');
+            const cartModalOverlay = document.getElementById('cartModalOverlay');
+            const cartModalCloseBtn = document.getElementById('cartModalCloseBtn');
+            const cartItemsList = document.getElementById('cartItemsList');
+            const cartEmptyMsg = document.getElementById('cartEmptyMsg');
+            const dealsSortControls = document.getElementById('deals-sort-controls');
+
+
+            // --- Render Functions ---
+            function renderCategories() {
+                if (!categoryListContainer) return;
+                categoryListContainer.innerHTML = '';
+                categories.forEach(cat => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<a href="${cat.link}"><div class="category-image-wrapper"><img src="${cat.img}" alt="${cat.name}" loading="lazy" width="64" height="64"></div>${cat.name}</a>`;
+                    categoryListContainer.appendChild(li);
+                });
+            }
+
+            // Function to escape special characters for regex
+             function escapeRegExp(string) {
+                return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+             }
+
+
+            function renderProducts(products, gridElement, noResultsElement, loadingElement, searchTerm = '') {
+                if (!gridElement) return;
+
+                gridElement.innerHTML = '';
+                if (loadingElement) loadingElement.style.display = 'none';
+                if (noResultsElement) noResultsElement.style.display = 'none';
+
+                if (products.length === 0) {
+                    if (noResultsElement) noResultsElement.style.display = 'block';
+                    return;
+                }
+
+                 const escapedSearchTerm = escapeRegExp(searchTerm);
+                 const regex = searchTerm ? new RegExp(`(${escapedSearchTerm})`, 'gi') : null;
+
+
+                products.forEach(product => {
+                    const card = document.createElement('div');
+                    card.className = 'product-card';
+
+                    // Highlight search term
+                    const highlightedTitle = regex ? product.title.replace(regex, '<span class="highlight">$1</span>') : product.title;
+                    const highlightedBrand = regex && product.brand ? product.brand.replace(regex, '<span class="highlight">$1</span>') : (product.brand || 'ब्रांड');
+
+
+                    card.innerHTML = `
+                        <div class="product-image">
+                            <span class="product-emoji">${product.emoji}</span>
+                        </div>
+                        <div class="product-details">
+                            <div>
+                                <h3 class="product-title" title="${product.title}">${highlightedTitle}</h3>
+                                <p class="product-brand">${highlightedBrand}</p>
+                                <p class="product-price">
+                                    ₹${product.price.toLocaleString('en-IN')}
+                                    ${product.originalPrice ? `<span class="original-price">₹${product.originalPrice.toLocaleString('en-IN')}</span>` : ''}
+                                    ${product.discount ? `<span class="discount">${product.discount}% की छूट</span>` : ''}
+                                </p>
+                                ${product.offer ? `<p class="product-offer">${product.offer}</p>` : ''}
+                            </div>
+                            <button class="add-to-cart-btn" data-product-id="${product.id}">कार्ट में डालें</button>
+                        </div>
+                    `;
+                    gridElement.appendChild(card);
+                });
+
+                attachAddToCartListeners(gridElement);
+            }
+
+            function renderCartModal() {
+                cartItemsList.innerHTML = ''; // Clear previous items
+                if (cartItems.length === 0) {
+                    cartEmptyMsg.style.display = 'block';
+                } else {
+                    cartEmptyMsg.style.display = 'none';
+                    cartItems.forEach(item => {
+                        const li = document.createElement('li');
+                        li.className = 'cart-item';
+                        li.innerHTML = `
+                            <span class="cart-item-emoji">${item.emoji}</span>
+                            <span class="cart-item-title">${item.title}</span>
+                            <span class="cart-item-price">₹${item.price.toLocaleString('en-IN')}</span>
+                        `;
+                        cartItemsList.appendChild(li);
+                    });
+                }
+            }
+
+             // --- UI Update Functions ---
+            function updateLoginStateUI() {
+                if (!userAuthSection || !logoutBtn || !profileDropdownLink) return;
+
+                if (isLoggedIn) {
+                    userAuthSection.innerHTML = `<a href="#" class="profile-link"><i class="fas fa-user"></i> प्रोफाइल</a>`; // Simple Profile link
+                    document.body.classList.add('logged-in');
+                    profileDropdownLink.style.display = 'flex'; // Show profile link in dropdown
+                } else {
+                    userAuthSection.innerHTML = `<button class="login-btn" id="loginBtn">Login</button>`;
+                    document.body.classList.remove('logged-in');
+                    profileDropdownLink.style.display = 'none'; // Hide profile link
+                    // Re-attach listener to the new login button
+                    const loginBtn = document.getElementById('loginBtn');
+                    if (loginBtn) {
+                        loginBtn.addEventListener('click', handleLogin);
+                    }
+                }
+            }
+
+            function updateCartCountUI() {
+                if (cartCountElement) {
+                    const count = cartItems.length;
+                    cartCountElement.textContent = count;
+                    cartCountElement.style.display = count > 0 ? 'inline-block' : 'none';
+                    if (count > 0) {
+                         cartCountElement.classList.add('updated');
+                         setTimeout(() => cartCountElement.classList.remove('updated'), 300);
+                    }
+                }
+            }
+
+            // --- Event Handlers ---
+            function handleAddToCartClick() {
+                const productId = this.getAttribute('data-product-id');
+                const product = allProducts.find(p => p.id == productId);
+
+                if (product) {
+                     // Check if item already exists (simple check by id)
+                    const existingItem = cartItems.find(item => item.id === product.id);
+                    if (!existingItem) {
+                        cartItems.push({...product}); // Add a copy to the cart
+                        updateCartCountUI();
+                        showToast(`'${product.title}' कार्ट में जोड़ा गया!`);
+                        // Update button state
+                        this.textContent = 'जोड़ा गया';
+                        this.classList.add('added');
+                        this.disabled = true;
+                    } else {
+                         showToast(`'${product.title}' पहले से ही कार्ट में है!`);
+                         // Ensure button state is correct if re-rendered
+                         this.textContent = 'जोड़ा गया';
+                         this.classList.add('added');
+                         this.disabled = true;
+                    }
+                }
+            }
+
+            function handleLogin() {
+                // Simulate login - in real app, this would involve API calls, etc.
+                isLoggedIn = true;
+                localStorage.setItem('flipkartCloneLoggedIn', 'true'); // Persist state
+                updateLoginStateUI();
+                showToast('आप सफलतापूर्वक लॉग इन हो गए हैं!');
+            }
+
+            function handleLogout() {
+                 isLoggedIn = false;
+                 localStorage.removeItem('flipkartCloneLoggedIn'); // Clear persisted state
+                 updateLoginStateUI();
+                 showToast('आप लॉग आउट हो गए हैं।');
+            }
+
+            function openCartModal() {
+                renderCartModal();
+                cartModalOverlay.classList.add('active');
+                cartModalOverlay.setAttribute('aria-hidden', 'false');
+            }
+
+            function closeCartModal() {
+                cartModalOverlay.classList.remove('active');
+                cartModalOverlay.setAttribute('aria-hidden', 'true');
+            }
+
+             function handleSearch() {
+                 const query = searchInput.value.toLowerCase().trim();
+                 const filterProducts = (category) => allProducts.filter(product =>
+                    product.category === category &&
+                    (product.title.toLowerCase().includes(query) || product.brand.toLowerCase().includes(query))
+                 );
+
+                 // Determine which sections to re-render based on current view/logic
+                 // For now, re-render all filtered sections
+                 renderProducts(filterProducts('deals'), dealsGrid, dealsNoResults, null, query); // Pass query for highlighting
+                 renderProducts(filterProducts('electronics'), electronicsGrid, electronicsNoResults, null, query);
+                 renderProducts(filterProducts('fashion'), fashionGrid, fashionNoResults, null, query);
+
+                 // Show/hide clear button
+                 searchClearBtn.style.display = query ? 'block' : 'none';
+
+                 // If query is empty, reset sorting and show all products
+                 if (query === "") {
+                    resetAllSections();
+                 }
+             }
+
+             function handleClearSearch() {
+                searchInput.value = '';
+                searchClearBtn.style.display = 'none';
+                resetAllSections(); // Reset products to initial state
+             }
+
+             function resetAllSections() {
+                 currentSort = null; // Reset sort state
+                 updateSortButtons(); // Deactivate sort buttons
+                 allProducts = [...originalProducts]; // Restore original product order if sorting modified it
+                 loadInitialData(false); // Reload initial data without re-rendering categories
+             }
+
+
+             function handleSort(event) {
+                 const sortType = event.target.dataset.sort;
+                 if (!sortType || !dealsGrid) return; // Only sorting deals for now
+
+                 currentSort = sortType;
+                 updateSortButtons();
+
+                 let dealsProducts = allProducts.filter(p => p.category === 'deals');
+
+                 if (sortType === 'price-asc') {
+                    dealsProducts.sort((a, b) => a.price - b.price);
+                 } else if (sortType === 'price-desc') {
+                     dealsProducts.sort((a, b) => b.price - a.price);
+                 }
+                 // Add more sort types here if needed
+
+                 // Re-render the sorted deals grid
+                 const currentQuery = searchInput.value.toLowerCase().trim(); // Keep search filter if active
+                 const filteredSortedDeals = currentQuery ? dealsProducts.filter(product =>
+                    product.title.toLowerCase().includes(currentQuery) || product.brand.toLowerCase().includes(currentQuery)
+                 ) : dealsProducts;
+
+                 renderProducts(filteredSortedDeals, dealsGrid, dealsNoResults, null, currentQuery);
+             }
+
+             function updateSortButtons() {
+                const buttons = dealsSortControls.querySelectorAll('.sort-btn');
+                buttons.forEach(button => {
+                    if (button.dataset.sort === currentSort) {
+                        button.classList.add('active');
+                    } else {
+                        button.classList.remove('active');
+                    }
+                });
+             }
+
+            // --- Event Listeners ---
+            function attachAddToCartListeners(parentElement) {
+                const addToCartButtons = parentElement.querySelectorAll('.add-to-cart-btn');
+                addToCartButtons.forEach(button => {
+                    // Check if item is already in cart to set initial button state correctly
+                    const productId = button.getAttribute('data-product-id');
+                    const isInCart = cartItems.some(item => item.id == productId);
+                    if (isInCart) {
+                        button.textContent = 'जोड़ा गया';
+                        button.classList.add('added');
+                        button.disabled = true;
+                    } else {
+                         button.textContent = 'कार्ट में डालें';
+                         button.classList.remove('added');
+                         button.disabled = false;
+                    }
+                     button.removeEventListener('click', handleAddToCartClick); // Prevent duplicates
+                     button.addEventListener('click', handleAddToCartClick);
+                });
+            }
+
+            // Search listeners
+            if (searchButton && searchInput) {
+                searchButton.addEventListener('click', handleSearch);
+                searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); handleSearch(); } });
+                 // Show clear button on input
+                 searchInput.addEventListener('input', () => {
+                    searchClearBtn.style.display = searchInput.value ? 'block' : 'none';
+                 });
+            }
+             if (searchClearBtn) {
+                searchClearBtn.addEventListener('click', handleClearSearch);
+            }
+
+             // Login/Logout listeners (Initial setup done in checkLoginStatus)
+             if(logoutBtn) logoutBtn.addEventListener('click', handleLogout);
+
+            // Cart Modal listeners
+            if (cartLink) cartLink.addEventListener('click', (e) => { e.preventDefault(); openCartModal(); });
+            if (cartModalCloseBtn) cartModalCloseBtn.addEventListener('click', closeCartModal);
+            if (cartModalOverlay) cartModalOverlay.addEventListener('click', (e) => { if (e.target === cartModalOverlay) closeCartModal(); }); // Close on overlay click
+
+            // Sorting listeners
+            if (dealsSortControls) {
+                dealsSortControls.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('sort-btn')) {
+                        handleSort(e);
+                    }
+                });
+            }
+
+            // --- Footer Year Update ---
+             const yearSpan = document.getElementById('currentYear');
+             if(yearSpan) { yearSpan.textContent = new Date().getFullYear(); }
+
+             // --- Simple Toast Notification ---
+             function showToast(message) {
+                 const existingToast = document.querySelector('.toast-notification');
+                 if (existingToast) { existingToast.remove(); }
+                 const toast = document.createElement('div');
+                 toast.className = 'toast-notification';
+                 toast.textContent = message;
+                 document.body.appendChild(toast);
+                 setTimeout(() => { toast.classList.add('show'); }, 10);
+                 setTimeout(() => {
+                     toast.classList.remove('show');
+                     const removeToast = () => { if (toast.parentNode) toast.parentNode.removeChild(toast); };
+                     toast.addEventListener('transitionend', removeToast, { once: true });
+                     setTimeout(removeToast, 3500);
+                 }, 3000);
+             }
+
+            // --- Initial Load & State Check ---
+             function checkLoginStatus() {
+                 isLoggedIn = localStorage.getItem('flipkartCloneLoggedIn') === 'true';
+                 updateLoginStateUI(); // Update UI based on initial status
+             }
+
+            function loadInitialData(renderCats = true) {
+                if (renderCats) { renderCategories(); }
+
+                // Show loading indicators briefly
+                [dealsLoading, electronicsLoading, fashionLoading].forEach(el => { if(el) el.style.display = 'inline'; });
+                [dealsGrid, electronicsGrid, fashionGrid].forEach(el => { if(el) el.innerHTML = ''; }); // Clear grids
+
+                 setTimeout(() => {
+                    const query = searchInput.value.toLowerCase().trim(); // Apply search on initial load if needed
+                    const filterAndRender = (category, grid, noResults, loading, sort = null) => {
+                         let products = allProducts.filter(p => p.category === category);
+
+                         // Apply sorting if needed (only for deals currently)
+                         if (category === 'deals' && sort) {
+                             if (sort === 'price-asc') products.sort((a, b) => a.price - b.price);
+                             else if (sort === 'price-desc') products.sort((a, b) => b.price - a.price);
+                         }
+
+                        const filtered = query ? products.filter(p => p.title.toLowerCase().includes(query) || p.brand.toLowerCase().includes(query)) : products;
+                        renderProducts(filtered, grid, noResults, loading, query);
+                    };
+
+                    filterAndRender('deals', dealsGrid, dealsNoResults, dealsLoading, currentSort);
+                    filterAndRender('electronics', electronicsGrid, electronicsNoResults, electronicsLoading);
+                    filterAndRender('fashion', fashionGrid, fashionNoResults, fashionLoading);
+
+                }, 50); // Very short delay, just enough to show loading potentially
+
+                 updateCartCountUI(); // Update cart count based on potentially loaded cartItems
+            }
+
+             // Initialize the page
+             checkLoginStatus(); // Check login status first
+             loadInitialData(); // Then load products and categories
+
+        }); // End DOMContentLoaded
+    </script>
+
+</body>
+</html>
